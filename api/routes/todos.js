@@ -108,4 +108,27 @@ router.patch("/todos/:todoId", async (req, res) => {
   res.send({});
 });
 
+router.delete("/todos/:todoId", async (req, res) => {
+  const { todoId } = req.params;
+  const currentTodo = await Todo.findByPk(todoId);
+  const userId = 1; // FIXME: 하드코딩
+
+  // currentTodo.order보다 큰 값을 가진 데이터를 가져와서 값을 1씩 뺀다.
+  const affectTodos = await Todo.findAll({
+    where: {
+      userId,
+      order: {
+        [Op.gt]: currentTodo.order,
+      },
+    },
+  });
+  await Promise.all(
+    affectTodos.map((todo) => todo.decrement("order", { by: 1 }))
+  );
+
+  await currentTodo.destroy();
+
+  res.send({});
+});
+
 module.exports = router;

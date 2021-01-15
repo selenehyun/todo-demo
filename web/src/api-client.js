@@ -19,6 +19,7 @@ const client = {
       done,
     });
   },
+  deleteTodo: (todoId) => axios.delete(`${API_HOST}/todos/${todoId}`),
 };
 
 export default client;

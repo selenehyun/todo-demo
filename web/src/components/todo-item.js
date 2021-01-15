@@ -3,6 +3,7 @@ import { useState } from "react";
 export const TodoItem = ({
   onUp,
   onDown,
+  onDelete,
   onChange,
   done,
   disabled,
@@ -44,6 +45,9 @@ export const TodoItem = ({
       </button>
       <button onClick={() => onDown()} disabled={!onDown || disabled}>
         down
+      </button>
+      <button onClick={() => onDelete()} disabled={!onDelete || disabled}>
+        삭제
       </button>
     </>
   );

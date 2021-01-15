@@ -11,8 +11,10 @@ function App() {
   );
   const [addTodoApi, , addTodoLoading] = useApi(apiClient.addTodo);
   const [editTodoApi, , editTodoLoading] = useApi(apiClient.editTodo);
+  const [deleteTodoApi, , deleteTodoLoading] = useApi(apiClient.deleteTodo);
 
-  const isLoading = getTodosLoading || addTodoLoading || editTodoLoading;
+  const isLoading =
+    getTodosLoading || addTodoLoading || editTodoLoading || deleteTodoLoading;
 
   useEffect(() => {
     getTodosApi();
@@ -27,8 +29,14 @@ function App() {
     await getTodosApi();
     setValue("");
   };
+
   const editTodo = async (todoId, args) => {
     await editTodoApi(todoId, args);
+    await getTodosApi();
+  };
+
+  const deleteTodo = async (todoId) => {
+    await deleteTodoApi(todoId);
     await getTodosApi();
   };
 
@@ -50,6 +58,7 @@ function App() {
                 i !== getTodosData?.todos.length - 1 &&
                 (() => editTodo(todo.id, { order: todo.order - 1 }))
               }
+              onDelete={() => deleteTodo(todo.id)}
               disabled={isLoading}
               done={Boolean(todo.doneAt)}
               onChange={(args) => editTodo(todo.id, args)}
