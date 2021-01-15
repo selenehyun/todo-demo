@@ -1,4 +1,5 @@
 const { Router } = require("express");
+const { Op } = require("sequelize");
 const { Todo } = require("../models");
 const router = Router();
 
@@ -12,7 +13,13 @@ const router = Router();
  */
 router.get("/todos", async (req, res) => {
   const todos = await Todo.findAll({
-    order: [["id", "DESC"]],
+    order: [
+      ["order", "DESC"],
+      ["id", "DESC"],
+    ],
+    where: {
+      userId: 1, // FIXME: 하드코딩
+    },
   });
 
   res.send({ todos });
@@ -22,9 +29,77 @@ router.get("/todos", async (req, res) => {
  * Todo 추가
  */
 router.post("/todos", async (req, res) => {
-  const { userId, value } = req.body;
-  const todo = await Todo.create({ userId, value });
+  const { value } = req.body;
+  const userId = 1; // FIXME: 하드코딩
+  const maxOrderByUserId = await Todo.max("order", {
+    where: {
+      userId,
+    },
+  });
+
+  // NOTE: NaN과 연산하는 수식의 결과는 무조건 NaN이 나오므로 아래의 조건은 정상적으로 동작한다.
+  const order = maxOrderByUserId + 1 || 1; // 최소 값은 1로 한다.
+  const todo = await Todo.create({ userId, value, order });
   res.send({ todo });
+});
+
+/**
+ * Todo 수정
+ */
+router.patch("/todos/:todoId", async (req, res) => {
+  const { todoId } = req.params;
+  const { value, order } = req.body;
+  const userId = 1; // FIXME: 하드코딩
+
+  const currentTodo = await Todo.findByPk(todoId);
+  if (!currentTodo) {
+    // TODO: 에러 핸들링 필요. 프론트에서 문제 안생기게 처리하면 괜찮긴 함.
+    throw new Error("존재하지 않는 todo 데이터입니다.");
+  }
+
+  if (order) {
+    // 1. currentTodo.order보다 작고 바꾸려고 하는 order 값과 크거나 같은 Todo 데이터만 가져옵니다.
+    const affectTodos = await Todo.findAll({
+      where: {
+        userId,
+        [Op.or]: [
+          {
+            order: {
+              [Op.gte]: order,
+              [Op.lt]: currentTodo.order,
+            },
+          },
+          {
+            order: {
+              [Op.lte]: order,
+              [Op.gt]: currentTodo.order,
+            },
+          },
+        ],
+      },
+    });
+    // 2. 불러온 데이터의 order 필드를 1씩 늘립니다.
+    await Promise.all(
+      affectTodos.map((todo) => {
+        if (currentTodo.order > order) {
+          // down을 하는 경우 위로 밀어주기 위해 불러온 데이터들의 order를 증가시킵니다.
+          return todo.increment("order", { by: 1 });
+        } else if (currentTodo.order < order) {
+          // up을 하는 경우 아래로 밀어주기 위해 불러온 데이터들의 order를 감소시킵니다.
+          return todo.decrement("order", { by: 1 });
+        }
+      })
+    );
+
+    // 3. 내가 원하는 Todo 데이터의 order 값을 지정합니다.
+    currentTodo.order = order;
+  }
+  if (value) {
+    currentTodo.value = value;
+  }
+  await currentTodo.save();
+
+  res.send({});
 });
 
 module.exports = router;

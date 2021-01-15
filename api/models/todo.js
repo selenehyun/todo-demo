@@ -16,7 +16,8 @@ module.exports = (sequelize, DataTypes) => {
   Todo.init({
     userId: DataTypes.INTEGER,
     value: DataTypes.STRING,
-    doneAt: DataTypes.DATE
+    doneAt: DataTypes.DATE,
+    order: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Todo',
