@@ -8,14 +8,15 @@ const client = {
     axios.post(`${API_HOST}/todos`, {
       value,
     }),
-  editTodo: async (todoId, { order, value } = {}) => {
-    if (!order && !value) {
+  editTodo: async (todoId, { order, value, done } = {}) => {
+    if (!order && !value && done === undefined) {
       return;
     }
 
     return axios.patch(`${API_HOST}/todos/${todoId}`, {
       value,
       order,
+      done,
     });
   },
 };

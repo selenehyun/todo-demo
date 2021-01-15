@@ -48,7 +48,7 @@ router.post("/todos", async (req, res) => {
  */
 router.patch("/todos/:todoId", async (req, res) => {
   const { todoId } = req.params;
-  const { value, order } = req.body;
+  const { value, order, done } = req.body;
   const userId = 1; // FIXME: 하드코딩
 
   const currentTodo = await Todo.findByPk(todoId);
@@ -94,8 +94,14 @@ router.patch("/todos/:todoId", async (req, res) => {
     // 3. 내가 원하는 Todo 데이터의 order 값을 지정합니다.
     currentTodo.order = order;
   }
+
   if (value) {
     currentTodo.value = value;
+  }
+
+  // NOTE: true, false 모두 입력받을수 있다.
+  if (done !== undefined) {
+    currentTodo.doneAt = done ? new Date() : null;
   }
   await currentTodo.save();
 

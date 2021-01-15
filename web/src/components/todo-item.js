@@ -1,18 +1,30 @@
 import { useState } from "react";
 
-export const TodoItem = ({ onUp, onDown, onChange, disabled, children }) => {
+export const TodoItem = ({
+  onUp,
+  onDown,
+  onChange,
+  done,
+  disabled,
+  children,
+}) => {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState("");
 
   const emitChange = () => {
     if (value !== String(children)) {
-      onChange && onChange(value);
-      setEditing(false);
+      onChange && onChange({ value });
     }
+    setEditing(false);
   };
 
   return (
     <>
+      <input
+        type="checkbox"
+        checked={done}
+        onChange={() => onChange && onChange({ done: !done })}
+      />
       {!editing && (
         <span
           onDoubleClick={() => setValue(String(children)) || setEditing(true)}

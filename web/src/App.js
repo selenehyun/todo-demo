@@ -39,9 +39,9 @@ function App() {
         추가
       </button>
 
-      <ul>
+      <ul className="list-group">
         {(getTodosData?.todos || []).map((todo, i) => (
-          <li key={todo.id}>
+          <li key={todo.id} className="list-group-item">
             <TodoItem
               onUp={
                 i !== 0 && (() => editTodo(todo.id, { order: todo.order + 1 }))
@@ -51,7 +51,8 @@ function App() {
                 (() => editTodo(todo.id, { order: todo.order - 1 }))
               }
               disabled={isLoading}
-              onChange={(v) => editTodo(todo.id, { value: v })}
+              done={Boolean(todo.doneAt)}
+              onChange={(args) => editTodo(todo.id, args)}
             >
               {todo.value}
             </TodoItem>
