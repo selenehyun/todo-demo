@@ -1,73 +1,20 @@
-import { useEffect, useState } from "react";
-import apiClient from "./api-client";
+import { useState } from "react";
 import "./App.css";
-import { TodoItem } from "./components/todo-item";
-import { useApi } from "./hooks";
+import { RegisterUserModal } from "./components/register-user-modal";
+import { TodoList } from "./components/todo-list";
 
 function App() {
-  const [value, setValue] = useState("");
-  const [getTodosApi, getTodosData, getTodosLoading] = useApi(
-    apiClient.getTodos
-  );
-  const [addTodoApi, , addTodoLoading] = useApi(apiClient.addTodo);
-  const [editTodoApi, , editTodoLoading] = useApi(apiClient.editTodo);
-  const [deleteTodoApi, , deleteTodoLoading] = useApi(apiClient.deleteTodo);
-
-  const isLoading =
-    getTodosLoading || addTodoLoading || editTodoLoading || deleteTodoLoading;
-
-  useEffect(() => {
-    getTodosApi();
-  }, [getTodosApi]);
-
-  const addTodo = async (inputData) => {
-    if (!inputData) {
-      alert("값을 입력해주세요");
-      return;
-    }
-    await addTodoApi(inputData);
-    await getTodosApi();
-    setValue("");
-  };
-
-  const editTodo = async (todoId, args) => {
-    await editTodoApi(todoId, args);
-    await getTodosApi();
-  };
-
-  const deleteTodo = async (todoId) => {
-    await deleteTodoApi(todoId);
-    await getTodosApi();
-  };
-
+  const [openRegister, setOpenRegister] = useState(false);
+  const [openLogin, setOpenLogin] = useState(false);
   return (
     <div className="App">
-      <input value={value} onChange={(e) => setValue(e.target.value)} />
-      <button onClick={() => addTodo(value)} disabled={isLoading}>
-        추가
-      </button>
-
-      <ul className="list-group">
-        {(getTodosData?.todos || []).map((todo, i) => (
-          <li key={todo.id} className="list-group-item">
-            <TodoItem
-              onUp={
-                i !== 0 && (() => editTodo(todo.id, { order: todo.order + 1 }))
-              }
-              onDown={
-                i !== getTodosData?.todos.length - 1 &&
-                (() => editTodo(todo.id, { order: todo.order - 1 }))
-              }
-              onDelete={() => deleteTodo(todo.id)}
-              disabled={isLoading}
-              done={Boolean(todo.doneAt)}
-              onChange={(args) => editTodo(todo.id, args)}
-            >
-              {todo.value}
-            </TodoItem>
-          </li>
-        ))}
-      </ul>
+      <button onClick={() => setOpenRegister(true)}>회원가입</button>
+      <button onClick={() => setOpenLogin(true)}>로그인</button>
+      <RegisterUserModal
+        open={openRegister}
+        onClose={() => setOpenRegister(false)}
+      />
+      <TodoList />
     </div>
   );
 }

@@ -20,6 +20,19 @@ const client = {
     });
   },
   deleteTodo: (todoId) => axios.delete(`${API_HOST}/todos/${todoId}`),
+
+  register: ({ email, password, confirmPassword, nickname }) =>
+    axios.post(`${API_HOST}/users`, {
+      email,
+      password,
+      confirmPassword,
+      nickname,
+    }),
+  login: ({ email, password }) =>
+    axios.post(`${API_HOST}/auth`, {
+      email,
+      password,
+    }),
 };
 
 export default client;

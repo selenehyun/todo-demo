@@ -1,4 +1,5 @@
 const { Router } = require("express");
+const { Op } = require("sequelize");
 const { User } = require("../models");
 const router = Router();
 
@@ -21,9 +22,22 @@ router.post("/users", async (req, res) => {
     return;
   }
 
+  // email or nickname이 동일한게 이미 있는지 확인하기 위해 가져온다.
+  const existsUsers = await User.findAll({
+    where: {
+      [Op.or]: [{ email }, { nickname }],
+    },
+  });
+  if (existsUsers.length) {
+    res.status(400).send({
+      errorMessage: "이메일 또는 닉네임이 이미 사용중입니다.",
+    });
+    return;
+  }
+
   await User.create({ email, nickname, password });
   // TODO: jwt
-  res.send({ token: 'FIXME: HARDCODINGTOKEN' });
+  res.send({ token: "FIXME: HARDCODINGTOKEN" });
 });
 
 module.exports = router;
