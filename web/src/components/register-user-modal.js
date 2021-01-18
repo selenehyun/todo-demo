@@ -24,7 +24,6 @@ export const RegisterUserModal = ({ open, onClose }) => {
     // loading은 데이터 주입받은 직후 false로 바뀌도록 구현돼있다.
     if (loading && registerData?.token) {
       alert("회원가입에 성공했습니다.");
-      console.log(registerData?.token);
       emitClose();
     }
   }, [loading, registerData, emitClose]);
