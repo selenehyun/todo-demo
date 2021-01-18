@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const { Op } = require("sequelize");
 const { Todo } = require("../models");
+const authMiddleware = require("../middlewares/auth-middleware");
 const router = Router();
 
 /**
@@ -11,14 +12,15 @@ const router = Router();
 /**
  * 모든 Todo 가져오기
  */
-router.get("/todos", async (req, res) => {
+router.get("/todos", authMiddleware, async (req, res) => {
+  const userId = res.locals.user.id;
   const todos = await Todo.findAll({
     order: [
       ["order", "DESC"],
       ["id", "DESC"],
     ],
     where: {
-      userId: 1, // FIXME: 하드코딩
+      userId,
     },
   });
 
@@ -28,9 +30,9 @@ router.get("/todos", async (req, res) => {
 /**
  * Todo 추가
  */
-router.post("/todos", async (req, res) => {
+router.post("/todos", authMiddleware, async (req, res) => {
   const { value } = req.body;
-  const userId = 1; // FIXME: 하드코딩
+  const userId = res.locals.user.id;
   const maxOrderByUserId = await Todo.max("order", {
     where: {
       userId,
@@ -46,10 +48,10 @@ router.post("/todos", async (req, res) => {
 /**
  * Todo 수정
  */
-router.patch("/todos/:todoId", async (req, res) => {
+router.patch("/todos/:todoId", authMiddleware, async (req, res) => {
   const { todoId } = req.params;
   const { value, order, done } = req.body;
-  const userId = 1; // FIXME: 하드코딩
+  const userId = res.locals.user.id;
 
   const currentTodo = await Todo.findByPk(todoId);
   if (!currentTodo) {
@@ -108,10 +110,10 @@ router.patch("/todos/:todoId", async (req, res) => {
   res.send({});
 });
 
-router.delete("/todos/:todoId", async (req, res) => {
+router.delete("/todos/:todoId", authMiddleware, async (req, res) => {
   const { todoId } = req.params;
   const currentTodo = await Todo.findByPk(todoId);
-  const userId = 1; // FIXME: 하드코딩
+  const userId = res.locals.user.id;
 
   // currentTodo.order보다 큰 값을 가진 데이터를 가져와서 값을 1씩 뺀다.
   const affectTodos = await Todo.findAll({

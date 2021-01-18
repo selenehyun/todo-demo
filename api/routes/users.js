@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const { Op } = require("sequelize");
 const { User } = require("../models");
+const authMiddleware = require("../middlewares/auth-middleware");
 const router = Router();
 
 /**
@@ -35,9 +36,35 @@ router.post("/users", async (req, res) => {
     return;
   }
 
-  await User.create({ email, nickname, password });
-  // TODO: jwt
-  res.send({ token: "FIXME: HARDCODINGTOKEN" });
+  const user = await User.create({ email, nickname, password });
+  res.send({ token: user.signToken() });
+});
+
+/**
+ * 토큰으로 사용자 정보를 얻어온다.
+ */
+router.get("/users/me", authMiddleware, async (req, res) => {
+  res.send({ user: res.locals.user });
+});
+
+router.post("/auth", async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({
+    where: {
+      email,
+    },
+  });
+
+  // NOTE: 인증 메세지는 자세히 설명하지 않는것을 원칙으로 한다: https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html#authentication-responses
+  if (!user || password !== user.password) {
+    res.status(400).send({
+      errorMessage: "이메일 또는 패스워드가 틀렸습니다.",
+    });
+    return;
+  }
+
+  res.send({ token: user.signToken() });
 });
 
 module.exports = router;
