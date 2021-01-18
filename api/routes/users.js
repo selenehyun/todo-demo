@@ -1,7 +1,9 @@
 const { Router } = require("express");
 const { Op } = require("sequelize");
+const Joi = require("joi");
 const { User } = require("../models");
 const authMiddleware = require("../middlewares/auth-middleware");
+const validationMiddleware = require("../middlewares/validation-middleware");
 const router = Router();
 
 /**
@@ -11,34 +13,46 @@ const router = Router();
 
 /**
  * 회원가입
- * TODO: joi
  */
-router.post("/users", async (req, res) => {
-  const { email, nickname, password, confirmPassword } = req.body;
+router.post(
+  "/users",
+  validationMiddleware(
+    Joi.object({
+      body: Joi.object({
+        email: Joi.string().email().required(),
+        password: Joi.string().min(3).required(),
+        confirmPassword: Joi.string().min(3).required(),
+        nickname: Joi.string().min(5).required(),
+      }),
+    })
+  ),
+  async (req, res) => {
+    const { email, nickname, password, confirmPassword } = req.body;
 
-  if (password !== confirmPassword) {
-    res.status(400).send({
-      errorMessage: "패스워드가 패스워드 확인란과 다릅니다.",
+    if (password !== confirmPassword) {
+      res.status(400).send({
+        errorMessage: "패스워드가 패스워드 확인란과 다릅니다.",
+      });
+      return;
+    }
+
+    // email or nickname이 동일한게 이미 있는지 확인하기 위해 가져온다.
+    const existsUsers = await User.findAll({
+      where: {
+        [Op.or]: [{ email }, { nickname }],
+      },
     });
-    return;
-  }
+    if (existsUsers.length) {
+      res.status(400).send({
+        errorMessage: "이메일 또는 닉네임이 이미 사용중입니다.",
+      });
+      return;
+    }
 
-  // email or nickname이 동일한게 이미 있는지 확인하기 위해 가져온다.
-  const existsUsers = await User.findAll({
-    where: {
-      [Op.or]: [{ email }, { nickname }],
-    },
-  });
-  if (existsUsers.length) {
-    res.status(400).send({
-      errorMessage: "이메일 또는 닉네임이 이미 사용중입니다.",
-    });
-    return;
+    const user = await User.create({ email, nickname, password });
+    res.send({ token: user.signToken() });
   }
-
-  const user = await User.create({ email, nickname, password });
-  res.send({ token: user.signToken() });
-});
+);
 
 /**
  * 토큰으로 사용자 정보를 얻어온다.
