@@ -1,7 +1,10 @@
 import { useContext, useState } from "react";
 import "./App.css";
+import { EchoStack } from "./components/echo-stack";
 import { LoginModal } from "./components/login-modal";
+import { RealtimeCounter } from "./components/realtime-counter";
 import { RegisterUserModal } from "./components/register-user-modal";
+import { SocketProvider } from "./components/socket-provider";
 import { TodoList } from "./components/todo-list";
 import { UserProvider, UserContext } from "./components/user-provider";
 
@@ -45,9 +48,13 @@ const TodoApp = () => {
 function App() {
   return (
     <div className="App">
-      <UserProvider>
-        <TodoApp />
-      </UserProvider>
+      <SocketProvider>
+        <UserProvider>
+          <RealtimeCounter />
+          <TodoApp />
+          <EchoStack />
+        </UserProvider>
+      </SocketProvider>
     </div>
   );
 }
