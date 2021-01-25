@@ -1,0 +1,35 @@
+version: "3.8"
+services:
+  api:
+    build:
+      context: ./api
+    environment:
+      - NODE_ENV=production
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    restart: on-failure
+    volumes:
+      - ./app/:/app/
+  web:
+    build:
+      context: ./web
+    environment:
+      - NODE_ENV=production
+      - API_URL=http://localhost:8080/api
+    ports:
+      - "3000:80"
+    depends_on:
+      - db
+    restart: on-failure
+    volumes:
+      - ./app/:/app/
+  db:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=1234
+    command:
+      - mysqld
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
