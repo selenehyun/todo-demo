@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_HOST = process.env.API_HOST || "http://localhost:8080/api";
+const API_HOST = process.env.API_URL || "http://localhost:8080/api";
 
 const client = {
   getTodos: () =>
