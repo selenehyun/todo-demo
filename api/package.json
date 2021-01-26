@@ -4,7 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "deploy": "sequelize db:create && sequelize db:migrate && npm start"
   },
   "author": "SeungHyun Kang",
   "license": "MIT",

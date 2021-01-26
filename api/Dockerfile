@@ -10,4 +10,4 @@ ARG NODE_ENV
 
 COPY . .
 
-CMD ["npm", "start"]
+CMD ["npm", "run", "deploy"]

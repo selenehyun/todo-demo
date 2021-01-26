@@ -17,7 +17,7 @@
     "username": "root",
     "password": "1234",
     "database": "database_production",
-    "host": "127.0.0.1",
+    "host": "db",
     "dialect": "mysql"
   }
 }
