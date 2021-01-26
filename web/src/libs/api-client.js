@@ -1,17 +1,18 @@
 import axios from "axios";
 
-const API_HOST = process.env.API_URL || "http://localhost:8080/api";
+export const API_HOST = process.env.REACT_APP_API_HOST;
+const API_URL = API_HOST + "/api";
 
 const client = {
   getTodos: () =>
-    axios.get(`${API_HOST}/todos`, {
+    axios.get(`${API_URL}/todos`, {
       headers: {
         authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     }),
   addTodo: (value) =>
     axios.post(
-      `${API_HOST}/todos`,
+      `${API_URL}/todos`,
       {
         value,
       },
@@ -27,7 +28,7 @@ const client = {
     }
 
     return axios.patch(
-      `${API_HOST}/todos/${todoId}`,
+      `${API_URL}/todos/${todoId}`,
       {
         value,
         order,
@@ -41,26 +42,26 @@ const client = {
     );
   },
   deleteTodo: (todoId) =>
-    axios.delete(`${API_HOST}/todos/${todoId}`, {
+    axios.delete(`${API_URL}/todos/${todoId}`, {
       headers: {
         authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     }),
 
   register: ({ email, password, confirmPassword, nickname }) =>
-    axios.post(`${API_HOST}/users`, {
+    axios.post(`${API_URL}/users`, {
       email,
       password,
       confirmPassword,
       nickname,
     }),
   login: ({ email, password }) =>
-    axios.post(`${API_HOST}/auth`, {
+    axios.post(`${API_URL}/auth`, {
       email,
       password,
     }),
   getSelf: () =>
-    axios.get(`${API_HOST}/users/me`, {
+    axios.get(`${API_URL}/users/me`, {
       headers: {
         authorization: `Bearer ${localStorage.getItem("token")}`,
       },
