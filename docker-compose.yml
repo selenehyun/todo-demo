@@ -1,8 +1,8 @@
 version: "3.8"
 services:
-  api:
+  server:
     build:
-      context: ./api
+      context: .
     environment:
       - NODE_ENV=production
     ports:
@@ -10,20 +10,6 @@ services:
     depends_on:
       - db
     restart: on-failure
-    volumes:
-      - ./app/:/app/
-  web:
-    build:
-      context: ./web
-    environment:
-      - NODE_ENV=production
-    ports:
-      - "3000:80"
-    depends_on:
-      - db
-    restart: on-failure
-    volumes:
-      - ./app/:/app/
   db:
     image: mysql:5.7
     environment:

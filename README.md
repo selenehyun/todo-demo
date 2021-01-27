@@ -25,5 +25,6 @@ npm start
 ## 3. deploy production env
 
 ```
+vi .env.production # API 주소를 배포할 서버의 주소로 수정
 docker-compose up --build
 ```

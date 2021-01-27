@@ -1,6 +1,7 @@
 import axios from "axios";
 
-export const API_HOST = process.env.REACT_APP_API_HOST;
+// eslint-disable-next-line no-restricted-globals
+export const API_HOST = `http://${location.host}`;
 const API_URL = API_HOST + "/api";
 
 const client = {
