@@ -9,11 +9,12 @@ const router = Router();
  * @see https://expressjs.com/en/guide/error-handling.html
  */
 
+const userId = 1; // FIXME: 로그인 기능이 없는 상태에서는 하드코딩해놓고 쓴다.
+
 /**
  * 모든 Todo 가져오기
  */
 router.get("/todos", authMiddleware, async (req, res) => {
-  const userId = res.locals.user.id;
   const todos = await Todo.findAll({
     order: [
       ["order", "DESC"],
@@ -32,7 +33,6 @@ router.get("/todos", authMiddleware, async (req, res) => {
  */
 router.post("/todos", authMiddleware, async (req, res) => {
   const { value } = req.body;
-  const userId = res.locals.user.id;
   const maxOrderByUserId = await Todo.max("order", {
     where: {
       userId,
@@ -51,7 +51,6 @@ router.post("/todos", authMiddleware, async (req, res) => {
 router.patch("/todos/:todoId", authMiddleware, async (req, res) => {
   const { todoId } = req.params;
   const { value, order, done } = req.body;
-  const userId = res.locals.user.id;
 
   const currentTodo = await Todo.findByPk(todoId);
   if (!currentTodo) {
@@ -113,7 +112,6 @@ router.patch("/todos/:todoId", authMiddleware, async (req, res) => {
 router.delete("/todos/:todoId", authMiddleware, async (req, res) => {
   const { todoId } = req.params;
   const currentTodo = await Todo.findByPk(todoId);
-  const userId = res.locals.user.id;
 
   // currentTodo.order보다 큰 값을 가진 데이터를 가져와서 값을 1씩 뺀다.
   const affectTodos = await Todo.findAll({
